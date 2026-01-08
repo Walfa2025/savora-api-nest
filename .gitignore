@@ -20,3 +20,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Local backups / scratch (do not commit)
+.env.bak*
+prisma/schema.prisma.bak_*
+prisma/**/*.bak*
+src/**/*.bak*
+test/**/*.bak*
