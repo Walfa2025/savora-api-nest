@@ -1,0 +1,22 @@
+node_modules
+.env
+.env.bak*
+
+# Build artifacts
+dist
+
+# Local runtime/dev artifacts
+.dev.log
+.dev.pid
+dev.db
+_backups
+extract
+.tmp_*.json
+.e2e_no_show_state*.json
+
+# OS / tooling noise
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
