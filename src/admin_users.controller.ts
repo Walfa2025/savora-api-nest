@@ -31,9 +31,9 @@ export class AdminUsersController {
     const role = body?.role;
     if (!role) throw new BadRequestException('role_required');
 
-    const where: Prisma.UserWhereUniqueInput = {};
-    if (body?.userId) where.id = String(body.userId);
-    else if (body?.phoneE164) where.phoneE164 = String(body.phoneE164);
+    let where: Prisma.UserWhereUniqueInput;
+    if (body?.userId) where = { id: String(body.userId) };
+    else if (body?.phoneE164) where = { phoneE164: String(body.phoneE164) };
     else throw new BadRequestException('userId_or_phoneE164_required');
 
     const updated = await this.prisma.user.update({

@@ -51,7 +51,7 @@ export class AdminOpsController {
     @Query('status') status?: VendorStatus,
     @Query('ownerUserId') ownerUserId?: string,
   ) {
-    const where: Prisma.UserWhereInput = {};
+    const where: Prisma.VendorWhereInput = {};
     if (status) where.status = status;
     if (ownerUserId) where.ownerUserId = String(ownerUserId);
 
@@ -70,7 +70,7 @@ export class AdminOpsController {
     @Query('status') status?: OfferStatus,
     @Query('vendorId') vendorId?: string,
   ) {
-    const where: Prisma.UserWhereInput = {};
+    const where: Prisma.OfferWhereInput = {};
     if (status) where.status = status;
     if (vendorId) where.vendorId = String(vendorId);
 

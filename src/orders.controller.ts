@@ -8,7 +8,7 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { OrderStatus, Prisma } from '@prisma/client';
 
 import { PrismaService } from './prisma/prisma.service';
