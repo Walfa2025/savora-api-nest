@@ -1,9 +1,9 @@
-import { Controller, Get, Query, UseGuards } from "@nestjs/common";
-import { PrismaService } from "./prisma/prisma.service";
-import { JwtAuthGuard } from "./auth/jwt-auth.guard";
-import { RolesGuard } from "./auth/roles.guard";
-import { Roles } from "./auth/roles.decorator";
-import { UserRole } from "@prisma/client";
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { PrismaService } from './prisma/prisma.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { RolesGuard } from './auth/roles.guard';
+import { Roles } from './auth/roles.decorator';
+import { Prisma, UserRole } from '@prisma/client';
 
 function toInt(v: any, fallback: number) {
   const n = Number(v);
@@ -16,17 +16,17 @@ function toInt(v: any, fallback: number) {
 export class AdminAuditController {
   constructor(private readonly prisma: PrismaService) {}
 
-  @Get("/admin/audit")
+  @Get('/admin/audit')
   async list(
-    @Query("limit") limitQ?: string,
-    @Query("actorUserId") actorUserId?: string,
-    @Query("action") action?: string,
-    @Query("targetType") targetType?: string,
-    @Query("targetId") targetId?: string
+    @Query('limit') limitQ?: string,
+    @Query('actorUserId') actorUserId?: string,
+    @Query('action') action?: string,
+    @Query('targetType') targetType?: string,
+    @Query('targetId') targetId?: string,
   ) {
     const limit = Math.min(Math.max(toInt(limitQ, 50), 1), 200);
 
-    const where: any = {};
+    const where: Prisma.AdminAuditLogWhereInput = {};
     if (actorUserId) where.actorUserId = String(actorUserId);
     if (action) where.action = String(action);
     if (targetType) where.targetType = String(targetType);
@@ -34,7 +34,7 @@ export class AdminAuditController {
 
     const items = await this.prisma.adminAuditLog.findMany({
       where,
-      orderBy: [{ createdAt: "desc" }],
+      orderBy: [{ createdAt: 'desc' }],
       take: limit,
       select: {
         id: true,

@@ -8,11 +8,20 @@ export class OrdersExpirer implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   onModuleInit() {
-    if ((process.env.NODE_ENV||"") === "test") return;
-    const intervalMs = parseInt(process.env.EXPIRER_INTERVAL_MS || '30000', 10) || 30000;
+    if ((process.env.NODE_ENV || '') === 'test') return;
+    const intervalMs =
+      parseInt(process.env.EXPIRER_INTERVAL_MS || '30000', 10) || 30000;
 
-    setInterval(() => this.tickNow().catch((e) => this.log.error(e?.message || e)), intervalMs);
-    this.tickNow().catch((e) => this.log.error(e?.message || e));
+    setInterval(() => {
+      void this.tickNow().catch((e: unknown) => {
+        const msg = e instanceof Error ? e.message : String(e);
+        this.log.error(msg);
+      });
+    }, intervalMs);
+    void this.tickNow().catch((e: unknown) => {
+      const msg = e instanceof Error ? e.message : String(e);
+      this.log.error(msg);
+    });
   }
 
   async tickNow() {
@@ -26,7 +35,8 @@ export class OrdersExpirer implements OnModuleInit {
     });
 
     // 2) PAID -> NO_SHOW when pickupEnd + grace passed (no qty change)
-    const graceMin = parseInt(process.env.NO_SHOW_GRACE_MINUTES || '30', 10) || 30;
+    const graceMin =
+      parseInt(process.env.NO_SHOW_GRACE_MINUTES || '30', 10) || 30;
     const cutoff = new Date(now.getTime() - graceMin * 60 * 1000);
 
     const noShows = await this.prisma.order.findMany({
@@ -71,6 +81,8 @@ export class OrdersExpirer implements OnModuleInit {
       }
     });
 
-    this.log.log(`expired_orders=${expired.length} no_show_orders=${noShows.length} graceMin=${graceMin}`);
+    this.log.log(
+      `expired_orders=${expired.length} no_show_orders=${noShows.length} graceMin=${graceMin}`,
+    );
   }
 }

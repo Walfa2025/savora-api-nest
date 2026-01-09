@@ -12,11 +12,18 @@ export class PaymentsController {
     if (!orderId) return { ok: false, error: 'order_id_required' };
 
     return this.prisma.$transaction(async (tx) => {
-      const order = await tx.order.findUnique({ where: { id: orderId }, include: { offer: true } });
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        include: { offer: true },
+      });
       if (!order) return { ok: false as const, error: 'not_found' };
 
       if (order.status !== 'RESERVED') {
-        return { ok: false as const, error: 'not_payable', status: order.status };
+        return {
+          ok: false as const,
+          error: 'not_payable',
+          status: order.status,
+        };
       }
 
       const payment = await tx.payment.upsert({

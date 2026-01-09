@@ -1,43 +1,63 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import { Request } from "express";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { OrderStatus, Prisma } from '@prisma/client';
 
-import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 import { PrismaService } from './prisma/prisma.service';
-
-
-type AuthedReq = Request & { user?: { id: string; role?: string } };
 
 function claimCode6() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-const ALLOWED_STATUSES = new Set(['RESERVED', 'PAID', 'CANCELLED', 'CLAIMED', 'EXPIRED', 'NO_SHOW']);
+const ALLOWED_STATUSES = new Set([
+  'RESERVED',
+  'PAID',
+  'CANCELLED',
+  'CLAIMED',
+  'EXPIRED',
+  'NO_SHOW',
+]);
 
 @Controller()
 export class OrdersController {
   constructor(private readonly prisma: PrismaService) {}
 
-
   @Get('/vendor/customers/blocked')
-  async blockedCustomers(@Query() q: { vendorId?: string; minStrikes?: string; take?: string }) {
+  async blockedCustomers(
+    @Query() q: { vendorId?: string; minStrikes?: string; take?: string },
+  ) {
     const vendorId = (q?.vendorId || '').trim() || null;
-    const minStrikes = Math.max(1, parseInt((q?.minStrikes || '3'), 10) || 3);
-    const take = Math.min(200, Math.max(1, parseInt((q?.take || '50'), 10) || 50));
+    const minStrikes = Math.max(1, parseInt(q?.minStrikes || '3', 10) || 3);
+    const take = Math.min(
+      200,
+      Math.max(1, parseInt(q?.take || '50', 10) || 50),
+    );
 
     // Alleen NO_SHOW strikes tellen (policy)
     const strikesRows = await this.prisma.strike.findMany({
-where: { reason: 'NO_SHOW', isActive: true },
+      where: { reason: 'NO_SHOW', isActive: true },
       select: { userId: true, createdAt: true },
     });
-const counts: Record<string, number> = {};
+    const counts: Record<string, number> = {};
     const lastStrikeAt: Record<string, Date> = {};
     for (const r of strikesRows) {
       counts[r.userId] = (counts[r.userId] || 0) + 1;
       const prev = lastStrikeAt[r.userId];
       if (!prev || r.createdAt > prev) lastStrikeAt[r.userId] = r.createdAt;
     }
-    let blockedUserIds = Object.keys(counts).filter((uid) => counts[uid] >= minStrikes);
-    if (blockedUserIds.length === 0) return { items: [], meta: { vendorId, minStrikes, take } };
+    let blockedUserIds = Object.keys(counts).filter(
+      (uid) => counts[uid] >= minStrikes,
+    );
+    if (blockedUserIds.length === 0)
+      return { items: [], meta: { vendorId, minStrikes, take } };
 
     // Optioneel: filter op vendor (alleen klanten die ooit bij die vendor besteld hebben)
     if (vendorId) {
@@ -47,12 +67,20 @@ const counts: Record<string, number> = {};
         distinct: ['customerUserId'],
       });
       blockedUserIds = cust.map((x) => x.customerUserId);
-      if (blockedUserIds.length === 0) return { items: [], meta: { vendorId, minStrikes, take } };
+      if (blockedUserIds.length === 0)
+        return { items: [], meta: { vendorId, minStrikes, take } };
     }
 
     const users = await this.prisma.user.findMany({
       where: { id: { in: blockedUserIds } },
-      select: { id: true, phoneE164: true, name: true, role: true, createdAt: true, updatedAt: true },
+      select: {
+        id: true,
+        phoneE164: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       take,
     });
 
@@ -69,8 +97,9 @@ const counts: Record<string, number> = {};
       take,
     });
 
-    const lastByCustomer = new Map(lastOrders.map((o) => [o.customerUserId, o]));
-
+    const lastByCustomer = new Map(
+      lastOrders.map((o) => [o.customerUserId, o]),
+    );
 
     const lastNoShowOrders = await this.prisma.order.findMany({
       where: {
@@ -83,7 +112,9 @@ const counts: Record<string, number> = {};
       take,
     });
 
-    const lastNoShowByCustomer = new Map(lastNoShowOrders.map((o) => [o.customerUserId, o]));
+    const lastNoShowByCustomer = new Map(
+      lastNoShowOrders.map((o) => [o.customerUserId, o]),
+    );
 
     const lastNoShowOrdersForVendor = vendorId
       ? await this.prisma.order.findMany({
@@ -109,19 +140,24 @@ const counts: Record<string, number> = {};
         strikes: counts[u.id] || 0,
         lastOrder: lastByCustomer.get(u.id) || null,
         lastNoShowOrder: lastNoShowByCustomer.get(u.id) || null,
-        lastNoShowOrderForVendor: lastNoShowByCustomerForVendor.get(u.id) || null,
-        lastNoShowStrikeAt: (lastStrikeAt[u.id] || null),
+        lastNoShowOrderForVendor:
+          lastNoShowByCustomerForVendor.get(u.id) || null,
+        lastNoShowStrikeAt: lastStrikeAt[u.id] || null,
       }))
       .sort((a, b) => b.strikes - a.strikes);
 
     return { items, meta: { vendorId, minStrikes, take } };
   }
   @Post('/orders')
-  async reserve(@Req() req: any, @Body() body: { offerId: string; customerPhone?: string; customerName?: string }) {
+  async reserve(
+    @Req() req: Request,
+    @Body()
+    body: { offerId: string; customerPhone?: string; customerName?: string },
+  ) {
     const offerId = (body?.offerId || '').trim();
     if (!offerId) return { ok: false, error: 'offerId_required' };
 
-    let customerId = (req?.user?.id || '').toString().trim();
+    let customerId = String(req.user?.id || '').trim();
 
     // MVP fallback: identify customer by phone/name when no JWT is present
     if (!customerId) {
@@ -140,20 +176,20 @@ const counts: Record<string, number> = {};
     const now = new Date();
     const reservedUntil = new Date(now.getTime() + 10 * 60 * 1000);
 
-
-
     return this.prisma.$transaction(async (tx) => {
       const strikes = await tx.strike.count({
         where: { userId: customerId, reason: 'NO_SHOW', isActive: true },
       });
-      if (strikes >= 3) return { ok: false as const, error: 'blocked_strikes', strikes };
+      if (strikes >= 3)
+        return { ok: false as const, error: 'blocked_strikes', strikes };
 
       const updated = await tx.offer.updateMany({
         where: { id: offerId, status: 'LIVE', qtyAvailable: { gt: 0 } },
         data: { qtyAvailable: { decrement: 1 } },
       });
 
-      if (updated.count !== 1) return { ok: false as const, error: 'sold_out_or_not_live' };
+      if (updated.count !== 1)
+        return { ok: false as const, error: 'sold_out_or_not_live' };
 
       for (let i = 0; i < 5; i++) {
         const code = claimCode6();
@@ -169,8 +205,12 @@ const counts: Record<string, number> = {};
             include: { offer: true },
           });
           return { ok: true as const, order };
-        } catch (e: any) {
-          if (e?.code === 'P2002') continue;
+        } catch (e: unknown) {
+          const code =
+            typeof e === 'object' && e && 'code' in e
+              ? (e as { code?: unknown }).code
+              : undefined;
+          if (code === 'P2002') continue;
           throw e;
         }
       }
@@ -178,7 +218,6 @@ const counts: Record<string, number> = {};
       throw new Error('claim_code_generation_failed');
     });
   }
-
 
   @Patch('/orders/:id/cancel')
   async cancel(@Param('id') id: string) {
@@ -190,7 +229,11 @@ const counts: Record<string, number> = {};
       if (!order) return { ok: false as const, error: 'not_found' };
 
       if (order.status !== 'RESERVED' && order.status !== 'PAID') {
-        return { ok: false as const, error: 'not_cancellable', status: order.status };
+        return {
+          ok: false as const,
+          error: 'not_cancellable',
+          status: order.status,
+        };
       }
 
       const updatedOrder = await tx.order.update({
@@ -214,7 +257,9 @@ const counts: Record<string, number> = {};
     if (!orderId) return { ok: false, error: 'order_id_required' };
     if (!claimCode) return { ok: false, error: 'claim_code_required' };
 
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!order) return { ok: false, error: 'not_found' };
 
     if (order.status !== 'PAID') {
@@ -240,14 +285,14 @@ const counts: Record<string, number> = {};
     @Query('status') status?: string,
     @Query('take') take?: string,
   ) {
-    const where: any = {};
+    const where: Prisma.OrderWhereInput = {};
 
     if (vendorId && vendorId.trim()) {
       where.offer = { vendorId: vendorId.trim() };
     }
 
     if (status && ALLOWED_STATUSES.has(status)) {
-      where.status = status;
+      where.status = status as unknown as OrderStatus;
     }
 
     const nRaw = parseInt((take || '50').trim(), 10);
@@ -263,6 +308,9 @@ const counts: Record<string, number> = {};
       },
     });
 
-    return { items, meta: { vendorId: vendorId || null, status: status || null, take: n } };
+    return {
+      items,
+      meta: { vendorId: vendorId || null, status: status || null, take: n },
+    };
   }
 }

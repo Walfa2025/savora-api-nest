@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "./prisma/prisma.service";
-import { UserRole } from "@prisma/client";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from './prisma/prisma.service';
+import { UserRole } from '@prisma/client';
 
-type AuditActor = { id: string; role: UserRole | string } | undefined;
+type AuditActor = { id: string; role: UserRole } | undefined;
 
 @Injectable()
 export class AdminAuditService {
@@ -15,12 +15,12 @@ export class AdminAuditService {
     targetId?: string | null;
     ip?: string | null;
     userAgent?: string | null;
-    meta?: any;
+    meta?: unknown;
   }) {
-    const actorId = String(params.actor?.id || "");
+    const actorId = String(params.actor?.id || '');
     if (!actorId) return;
 
-    const actorRole = String(params.actor?.role || "ADMIN") as any;
+    const actorRole = params.actor?.role ?? UserRole.ADMIN;
 
     await this.prisma.adminAuditLog.create({
       data: {

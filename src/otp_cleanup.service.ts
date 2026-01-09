@@ -1,5 +1,5 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { PrismaService } from "./prisma/prisma.service";
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { PrismaService } from './prisma/prisma.service';
 
 @Injectable()
 export class OtpCleanupService implements OnModuleInit {
@@ -8,10 +8,18 @@ export class OtpCleanupService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   onModuleInit() {
-    if ((process.env.NODE_ENV||"") === "test") return;
+    if ((process.env.NODE_ENV || '') === 'test') return;
     const intervalMs = 5 * 60 * 1000; // every 5 minutes
-    setInterval(() => this.tickNow().catch((e) => this.log.error(e?.message || e)), intervalMs);
-    this.tickNow().catch((e) => this.log.error(e?.message || e));
+    setInterval(() => {
+      void this.tickNow().catch((e: unknown) => {
+        const msg = e instanceof Error ? e.message : String(e);
+        this.log.error(msg);
+      });
+    }, intervalMs);
+    void this.tickNow().catch((e: unknown) => {
+      const msg = e instanceof Error ? e.message : String(e);
+      this.log.error(msg);
+    });
   }
 
   async tickNow() {
@@ -28,8 +36,12 @@ export class OtpCleanupService implements OnModuleInit {
   async stats() {
     const now = new Date();
     const total = await this.prisma.otpRequest.count();
-    const expired = await this.prisma.otpRequest.count({ where: { expiresAt: { lt: now } } });
-    const used = await this.prisma.otpRequest.count({ where: { usedAt: { not: null } } });
+    const expired = await this.prisma.otpRequest.count({
+      where: { expiresAt: { lt: now } },
+    });
+    const used = await this.prisma.otpRequest.count({
+      where: { usedAt: { not: null } },
+    });
     return { total, expired, used };
   }
 }

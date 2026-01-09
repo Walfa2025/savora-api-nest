@@ -29,8 +29,12 @@ export class OffersController {
     const lngDelta = radiusKm / (111 * Math.cos((lat * Math.PI) / 180) || 1);
 
     const now = new Date();
-    const from = fromQ ? new Date(fromQ) : new Date(now.getTime() - 60 * 60 * 1000);
-    const to = toQ ? new Date(toQ) : new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const from = fromQ
+      ? new Date(fromQ)
+      : new Date(now.getTime() - 60 * 60 * 1000);
+    const to = toQ
+      ? new Date(toQ)
+      : new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
     const offers = await this.prisma.offer.findMany({
       where: {
@@ -45,12 +49,23 @@ export class OffersController {
         },
       },
       include: {
-        vendor: { select: { id: true, name: true, addressText: true, lat: true, lng: true } },
+        vendor: {
+          select: {
+            id: true,
+            name: true,
+            addressText: true,
+            lat: true,
+            lng: true,
+          },
+        },
       },
       orderBy: [{ pickupStart: 'asc' }],
       take: 100,
     });
 
-    return { items: offers, meta: { lat, lng, radiusKm, from, to, count: offers.length } };
+    return {
+      items: offers,
+      meta: { lat, lng, radiusKm, from, to, count: offers.length },
+    };
   }
 }
