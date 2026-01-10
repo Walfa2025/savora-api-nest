@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "e2e:no_show_unblock:ci": "bash scripts/ci_run_no_show_unblock.sh"
+    "e2e:no_show_unblock:ci": "bash scripts/ci_run_no_show_unblock.sh",
+    "openapi:export": "NODE_ENV=test ts-node scripts/export_openapi.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

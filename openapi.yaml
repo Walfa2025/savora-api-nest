@@ -92,7 +92,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
+      tags: &a1
         - Orders
   /orders:
     post:
@@ -101,8 +101,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Orders
+      tags: *a1
   /orders/{id}/cancel:
     patch:
       operationId: OrdersController_cancel
@@ -115,8 +114,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
-        - Orders
+      tags: *a1
   /vendor/orders/{id}/claim:
     post:
       operationId: OrdersController_claim
@@ -129,8 +127,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Orders
+      tags: *a1
   /vendor/orders:
     get:
       operationId: OrdersController_vendorOrders
@@ -153,8 +150,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
-        - Orders
+      tags: *a1
   /payments/mock/succeed:
     post:
       operationId: PaymentsController_succeed
@@ -171,7 +167,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
+      tags: &a2
         - SelfUnblock
   /me/self-unblock/bank-transfer/{paymentId}/proof:
     post:
@@ -185,8 +181,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - SelfUnblock
+      tags: *a2
   /admin/self-unblock/{paymentId}/confirm:
     post:
       operationId: SelfUnblockController_confirm
@@ -199,8 +194,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - SelfUnblock
+      tags: *a2
   /admin/expirer/tick:
     post:
       operationId: ExpirerAdminController_tick
@@ -226,7 +220,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
+      tags: &a3
         - Vendors
   /vendor/me/{vendorId}:
     patch:
@@ -240,8 +234,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /vendor/apply:
     post:
       operationId: VendorsController_apply
@@ -249,8 +242,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /vendor/offers:
     get:
       operationId: VendorsController_listMyOffers
@@ -258,16 +250,14 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
     post:
       operationId: VendorsController_createOffer
       parameters: []
       responses:
         "201":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /vendor/offers/{id}:
     patch:
       operationId: VendorsController_updateOffer
@@ -280,8 +270,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /vendor/offers/{id}/publish:
     post:
       operationId: VendorsController_publish
@@ -294,8 +283,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /vendor/offers/{id}/pause:
     post:
       operationId: VendorsController_pause
@@ -308,8 +296,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /vendor/offers/{id}/resume:
     post:
       operationId: VendorsController_resume
@@ -322,8 +309,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /admin/vendors/status:
     post:
       operationId: VendorsController_setVendorStatus
@@ -331,8 +317,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Vendors
+      tags: *a3
   /admin/users:
     get:
       operationId: AdminOpsController_users
@@ -345,7 +330,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
+      tags: &a4
         - AdminOps
   /admin/vendors:
     get:
@@ -364,8 +349,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
-        - AdminOps
+      tags: *a4
   /admin/offers:
     get:
       operationId: AdminOpsController_offers
@@ -383,8 +367,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
-        - AdminOps
+      tags: *a4
   /admin/offers/status:
     post:
       operationId: AdminOpsController_setOfferStatus
@@ -392,8 +375,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - AdminOps
+      tags: *a4
   /admin/otp/stats:
     get:
       operationId: OtpAdminController_stats
@@ -401,7 +383,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
+      tags: &a5
         - OtpAdmin
   /admin/otp/cleanup:
     post:
@@ -410,8 +392,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - OtpAdmin
+      tags: *a5
   /admin/audit:
     get:
       operationId: AdminAuditController_list
@@ -462,7 +443,7 @@ paths:
       responses:
         "200":
           description: ""
-      tags:
+      tags: &a6
         - Auth
   /auth/request-otp:
     post:
@@ -471,8 +452,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Auth
+      tags: *a6
   /auth/verify-otp:
     post:
       operationId: AuthController_verifyOtp
@@ -480,8 +460,7 @@ paths:
       responses:
         "201":
           description: ""
-      tags:
-        - Auth
+      tags: *a6
 info:
   title: Savora API
   description: Savora backend (api_nest)
