@@ -26,7 +26,7 @@ async function bootstrap() {
       process.env.EXPORT_OPENAPI_PATH ||
       path.resolve(process.cwd(), 'openapi.json');
     fs.writeFileSync(out, JSON.stringify(document, null, 2), 'utf8');
-    // eslint-disable-next-line no-console
+
     console.log(`OpenAPI exported to: ${out}`);
   }
 
