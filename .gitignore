@@ -27,3 +27,14 @@ prisma/schema.prisma.bak_*
 prisma/**/*.bak*
 src/**/*.bak*
 test/**/*.bak*
+
+# runtime/dev artifacts
+dist/
+dev.db
+.dev.log
+.dev.pid
+.tmp_*.json
+.e2e_*.json
+.env
+.env.*
+!.env.example
