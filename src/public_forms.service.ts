@@ -145,6 +145,13 @@ export class PublicFormsService {
   }
 
   async submitWaitlist(payload: WaitlistPayload) {
+    console.log("SMTP_ENV", {
+      host: !!process.env.SES_SMTP_HOST,
+      port: !!process.env.SES_SMTP_PORT,
+      user: !!process.env.SES_SMTP_USER,
+      pass: !!process.env.SES_SMTP_PASS,
+      from: !!process.env.MAIL_FROM,
+    });
     const config = this.getSmtpConfig();
     const transporter = this.createTransport(config);
     const to = this.pickRecipient(config, 'waitlist');
