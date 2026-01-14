@@ -20,6 +20,8 @@ import { OtpCleanupService } from './otp_cleanup.service';
 import { AdminAuditService } from './admin_audit.service';
 import { AdminAuditController } from './admin_audit.controller';
 import { DevAuthController } from './dev_auth.controller';
+import { PublicFormsController } from './public_forms.controller';
+import { PublicFormsService } from './public_forms.service';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule],
@@ -37,6 +39,7 @@ import { DevAuthController } from './dev_auth.controller';
     OtpAdminController,
     AdminAuditController,
     DevAuthController,
+    PublicFormsController,
   ],
   providers: [
     AppService,
@@ -44,6 +47,7 @@ import { DevAuthController } from './dev_auth.controller';
     SelfUnblockService,
     OtpCleanupService,
     AdminAuditService,
+    PublicFormsService,
   ],
 })
 export class AppModule {}
