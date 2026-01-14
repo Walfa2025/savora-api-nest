@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 enum UserRole {
@@ -43,7 +43,8 @@ enum PaymentStatus {
 
 model User {
   id        String   @id @default(uuid())
-  phoneE164 String   @unique
+  phoneE164 String?  @unique
+  email     String?  @unique
   role      UserRole @default(CUSTOMER)
   name      String?
   createdAt DateTime @default(now())
@@ -204,7 +205,8 @@ model PenaltyPayment {
 
 model OtpRequest {
   id        String @id // requestId
-  phoneE164 String
+  phoneE164 String?
+  email     String?
   otpHash   String
 
   expiresAt DateTime
@@ -215,8 +217,27 @@ model OtpRequest {
   updatedAt DateTime @updatedAt
 
   @@index([phoneE164])
+  @@index([email])
   @@index([expiresAt])
   @@index([usedAt])
+}
+
+model PartnerRequest {
+  id       String @id @default(uuid())
+  store    String
+  city     String
+  street   String
+  address  String
+  postcode String
+  email    String
+  phone    String?
+  tagsJson String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([createdAt])
 }
 
 model AdminAuditLog {
