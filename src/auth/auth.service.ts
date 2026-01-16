@@ -48,7 +48,9 @@ export class AuthService {
     const transporter = nodemailer.createTransport({
       host: config.host,
       port: config.port,
-      secure: config.port === 465,
+      secure: false,
+      requireTLS: true,
+      tls: { servername: config.host },
       auth: { user: config.user, pass: config.pass },
     });
 
