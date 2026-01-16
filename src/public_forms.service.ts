@@ -57,6 +57,22 @@ function csvEscape(value: string): string {
   return value;
 }
 
+function safeSmtpError(err: any) {
+  return {
+    name: err?.name,
+    message: err?.message,
+    code: err?.code,
+    command: err?.command,
+    responseCode: err?.responseCode,
+    response: err?.response,
+    errno: err?.errno,
+    syscall: err?.syscall,
+    address: err?.address,
+    port: err?.port,
+  };
+}
+
+
 @Injectable()
 export class PublicFormsService {
   constructor(private readonly prisma: PrismaService) {}
