@@ -172,6 +172,15 @@ export class PublicFormsService {
         text,
       });
     } catch (error: any) {
+      console.error('SMTP_SEND_FAIL', {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+        response: error?.response,
+        responseCode: error?.responseCode,
+        command: error?.command,
+      });
+
       const message = String(error?.message || error);
       if (/Invalid login|535|EAUTH/i.test(message)) {
         throw new Error('SMTP_AUTH_FAILED');
@@ -226,6 +235,15 @@ export class PublicFormsService {
         text,
       });
     } catch (error: any) {
+      console.error('SMTP_SEND_FAIL', {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+        response: error?.response,
+        responseCode: error?.responseCode,
+        command: error?.command,
+      });
+
       const message = String(error?.message || error);
       if (/Invalid login|535|EAUTH/i.test(message)) {
         throw new Error('SMTP_AUTH_FAILED');
