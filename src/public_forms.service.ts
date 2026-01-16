@@ -180,6 +180,7 @@ export class PublicFormsService {
     ].join('\n');
 
     try {
+      console.log('WAITLIST_SEND_ATTEMPT', Date.now());
       await transporter.sendMail({
         from: config.from,
         to,
@@ -188,14 +189,17 @@ export class PublicFormsService {
         text,
       });
     } catch (error: any) {
-      console.error('SMTP_SEND_FAIL', {
-        name: error?.name,
-        message: error?.message,
-        code: error?.code,
-        response: error?.response,
-        responseCode: error?.responseCode,
-        command: error?.command,
-      });
+      console.error(
+        'SMTP_SEND_FAIL',
+        JSON.stringify({
+          name: error?.name,
+          message: error?.message,
+          code: error?.code,
+          response: error?.response,
+          responseCode: error?.responseCode,
+          command: error?.command,
+        }),
+      );
 
       const message = String(error?.message || error);
       if (/Invalid login|535|EAUTH/i.test(message)) {
@@ -251,14 +255,17 @@ export class PublicFormsService {
         text,
       });
     } catch (error: any) {
-      console.error('SMTP_SEND_FAIL', {
-        name: error?.name,
-        message: error?.message,
-        code: error?.code,
-        response: error?.response,
-        responseCode: error?.responseCode,
-        command: error?.command,
-      });
+      console.error(
+        'SMTP_SEND_FAIL',
+        JSON.stringify({
+          name: error?.name,
+          message: error?.message,
+          code: error?.code,
+          response: error?.response,
+          responseCode: error?.responseCode,
+          command: error?.command,
+        }),
+      );
 
       const message = String(error?.message || error);
       if (/Invalid login|535|EAUTH/i.test(message)) {
