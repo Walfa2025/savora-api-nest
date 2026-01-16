@@ -182,7 +182,6 @@ export class PublicFormsService {
     ].join('\n');
 
     try {
-      console.log('WAITLIST_SEND_ATTEMPT', Date.now());
       await transporter.sendMail({
         from: config.from,
         to,
